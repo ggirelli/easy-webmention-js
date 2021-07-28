@@ -57,16 +57,24 @@ function ew_load_replies() {
 
 function ew_prep_read_more_button() {
     return($("<a/>")
-        .addClass("ps-2")
+        .addClass("ps-2 float-end")
+        .attr("id", "ew-read-more")
         .attr("target", "_new")
         .attr("href", EW_READ_MORE_URI)
+        .attr("data-bs-toggle", "tooltip" )
+        .attr("data-bs-placement", "top")
+        .attr("title", "Read more on webmentions")
         .html("<i class='fas fa-question-circle'></i>"))
 };
 
 function ew_prep_add_webmention_button() {
     return($("<a/>")
-        .addClass("ps-2")
+        .addClass("ps-2 float-end")
         .attr("id", "ew-add-webmention")
+        .attr("href", "#")
+        .attr("data-bs-toggle", "tooltip" )
+        .attr("data-bs-placement", "top")
+        .attr("title", "Manually add a webmention")
         .html("<i class='fas fa-plus-circle'></i>")
         .click(function(e) {
             e.preventDefault();
@@ -94,18 +102,16 @@ function ew_prep_webmentions_count(count) {
     } else {
         return($("<h5 />").append(webmention_count)
             .append($("<small/>")
-                .append(ew_prep_add_webmention_button())
-                .append(ew_prep_read_more_button())))
+                .append(ew_prep_read_more_button())
+                .append(ew_prep_add_webmention_button())))
     }
 }
 
 function ew_show_counts(response) {
-    if ( 0 == response.count ) {
-        $(EW_WRAP_ID)
-            .addClass("card card-body")
-            .text("No webmentions found for this page.");
-    } else {
-        $(EW_WRAP_ID).append(ew_prep_webmentions_count(response.count));
+    $(EW_WRAP_ID).append(ew_prep_webmentions_count(response.count));
+    new bootstrap.Tooltip($("#ew-add-webmention")).enable();
+    new bootstrap.Tooltip($("#ew-read-more")).enable();
+    if ( 0 < response.count ) {
         plural_labels = {
             "like": "likes",
             "mention": "mentions",
