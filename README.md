@@ -1,6 +1,15 @@
 # easy-webmention-js
 A simple JavaScript library to serve Webmentions via Webmention.io
 
+In your `<head />` include the following, after importing Bootstrap and jQuery:
+
+```html
+<script type="text/js" src="https://raw.githubusercontent.com/ggirelli/easy-webmention-js/main/src/easy-webmention.js"></script>
+<link rel="stylesheet" ref="https://raw.githubusercontent.com/ggirelli/easy-webmention-js/main/src/easy-webmention.css" />
+```
+
+Then, place the following where you would like your webmentions to appear:
+
 ```html
 <!-- WEBMENTIONS -->
 <div id="webmentions-wrap"></div>
