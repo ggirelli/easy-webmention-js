@@ -17,7 +17,7 @@ Then, place the following where you would like your webmentions to appear:
     let WEBMENTIONS_FEED_URI = "https://webmention.io/api/mentions.jf2?target={{ site.url }}{{ page.url }}";
     let WEBMENTIONS_ID = "webmentions-wrap";
     $(function () {
-        $.get(WEBMENTIONS_FEED_URI + "&wm-property=in-reply-to", {}, process_inreply_query_response});
+        $.get(WEBMENTIONS_FEED_URI + "&wm-property=in-reply-to", {}, process_inreply_query_response);
     });
 </script>
 ```
