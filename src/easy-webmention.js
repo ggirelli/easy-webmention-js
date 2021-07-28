@@ -1,7 +1,7 @@
-function append_reply_element(index, item, target) {
+function ew_append_reply_element(index, item, target) {
     card_body = $("<div />")
         .attr("id", "ew-webmention-" + index)
-        .attr("title", item.published)
+        .attr("title", Date(Date.parse(item.published)))
         .addClass("row card-body");
 
     author_avatar = $("<img />")
@@ -12,7 +12,7 @@ function append_reply_element(index, item, target) {
         .addClass("col-3 col-md-1 pe-0")
         .append(author_avatar));
 
-    reply_text = "reply";
+    reply_text = "Reply";
     if ( item.url.startsWith("https://twitter.com/") ) {
         reply_text += " on Twitter";
     }
@@ -34,7 +34,8 @@ function append_reply_element(index, item, target) {
         .addClass("col-9 col-md-11 pb-2")
         .append(author_link)
         .append($("<div />").text(item.content.text))
-        .append(item_link));
+        .append($("<div />")
+            .append(item_link)));
 
     $(target)
         .append($("<div />")
@@ -43,14 +44,92 @@ function append_reply_element(index, item, target) {
             .append(card_body));
 }
 
-function process_inreply_query_response(response) {
-    $.each(response.children, function(index, item) {
-        append_reply_element(index, item, WEBMENTIONS_ID);
+function ew_load_replies() {
+    $.get("https://webmention.io/api/mentions.jf2?target=" +
+        EW_TARGET + "&wm-property=in-reply-to", {}, function(response) {
+        if ( 0 != response.children.length ) {
+            $.each(response.children, function(index, item) {
+                ew_append_reply_element(index, item, $(EW_WRAP_ID));
+            });
+        }
     });
+}
 
-    if ( 0 == response.children.length ) {
-        $(WEBMENTIONS_ID)
+function ew_prep_read_more_button() {
+    return($("<a/>")
+        .addClass("ps-2")
+        .attr("target", "_new")
+        .attr("href", EW_READ_MORE_URI)
+        .html("<i class='fas fa-question-circle'></i>"))
+};
+
+function ew_prep_add_webmention_button() {
+    return($("<a/>")
+        .addClass("ps-2")
+        .attr("id", "ew-add-webmention")
+        .html("<i class='fas fa-plus-circle'></i>")
+        .click(function(e) {
+            e.preventDefault();
+            source = prompt("Manually input the address to a page referring to this article.");
+            $(EW_WRAP_ID + " > form > input[name=source]").attr("value", source);
+            $.post("https://webmention.io/" + EW_TAG + "/webmention",
+                {"target": EW_TARGET, "source": source}, function(data, status) {
+                    console.log([data, status]);
+                    window.open(data.location, "_self");
+                }).fail(function(data, status) {
+                    console.log([data, status]);
+                    if ( data.responseJSON != undefined ) {
+                        alert(data.responseJSON.error_description);
+                    } else {
+                        alert("Error! Check the console for more details or try again later.");
+                    }
+                });
+        }))
+}
+
+function ew_prep_webmentions_count(count) {
+    webmention_count = $("<span/>").text(count + " webmentions");
+    if ( EW_READ_MORE_URI == undefined ) {
+        return($("<h5 />").append(webmention_count));
+    } else {
+        return($("<h5 />").append(webmention_count)
+            .append($("<small/>")
+                .append(ew_prep_add_webmention_button())
+                .append(ew_prep_read_more_button())))
+    }
+}
+
+function ew_show_counts(response) {
+    if ( 0 == response.count ) {
+        $(EW_WRAP_ID)
             .addClass("card card-body")
             .text("No webmentions found for this page.");
+    } else {
+        $(EW_WRAP_ID).append(ew_prep_webmentions_count(response.count));
+        plural_labels = {
+            "like": "likes",
+            "mention": "mentions",
+            "reply": "replies",
+            "bookmark": "bookmarks",
+            "repost": "re-posts"
+        };
+        $.each(response.type, function(label, value) {
+            item_header = $("<h6 />").addClass("mb-3");
+            if ( value > 1 && plural_labels[label] != undefined) {
+                item_header.text(value + " " + plural_labels[label]);
+            } else {
+                item_header.text(value + " " + label);
+            }
+            $(EW_WRAP_ID).append(item_header);
+        });
     }
+}
+
+function ew_init() {
+    $.get("https://webmention.io/api/count?target=" + EW_TARGET, {}, function(response, status) {
+        ew_show_counts(response);
+        if ( response.type.reply > 0 ) {
+            ew_load_replies();
+        }
+    });
 }
