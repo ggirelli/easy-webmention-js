@@ -4,6 +4,10 @@ function ew_append_mention_element(index, item, target) {
         .attr("title", Date(Date.parse(item.published)))
         .addClass("row card-body");
 
+    if ( item.author.name == "" ) {
+        item.author.name = "Anonymous";
+        item.author.photo = "https://s3-us-west-2.amazonaws.com/ca3db/abs.twimg.com/0e6b2cd70aa5b35dec24ca4e1e63f8963f0118736d9ec3bba77e3a8c99a27bc2.png";
+    }
     author_avatar = $("<img />")
             .attr("src", item.author.photo)
             .attr("alt", item.author.name + "-avatar")
@@ -16,7 +20,7 @@ function ew_append_mention_element(index, item, target) {
     if ( item.url.startsWith("https://twitter.com/") ) {
         mention_text += " on Twitter";
     }
-    if ( item.url.startsWith("https://github.com/") ) {
+    if ( item.url.startsWith("https://github.com/") || item.url.startsWith("https://www.github.com/") ) {
         mention_text += " on GitHub";
     }
 
@@ -30,12 +34,17 @@ function ew_append_mention_element(index, item, target) {
             .attr("href", item.url)
             .attr("target", "_new")
             .text(mention_text);
-    card_body.append($("<div />")
+
+    mention_content = $("<div />")
         .addClass("col-9 col-md-11 pb-2")
-        .append(author_link)
-        .append($("<div />").text(item.content.text))
-        .append($("<div />")
-            .append(item_link)));
+        .append(author_link);
+    if ( item.content != null ) {
+        mention_content.append($("<div />").text(item.content.text));
+    } else {
+        mention_content.append($("<div />").text("Content could not be retrieved.").css({"font-style":"italic"}));
+    }
+    mention_content.append($("<div />").append(item_link));
+    card_body.append(mention_content);
 
     $(target)
         .append($("<div />")
