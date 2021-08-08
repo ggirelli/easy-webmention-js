@@ -1,3 +1,61 @@
+function ew_append_mention_element(index, item, target) {
+    card_body = $("<div />")
+        .attr("id", "ew-webmention-" + index)
+        .attr("title", Date(Date.parse(item.published)))
+        .addClass("row card-body");
+
+    author_avatar = $("<img />")
+            .attr("src", item.author.photo)
+            .attr("alt", item.author.name + "-avatar")
+            .addClass("ew-author-avatar");
+    card_body.append($("<div />")
+        .addClass("col-3 col-md-1 pe-0")
+        .append(author_avatar));
+
+    mention_text = "View";
+    if ( item.url.startsWith("https://twitter.com/") ) {
+        mention_text += " on Twitter";
+    }
+    if ( item.url.startsWith("https://github.com/") ) {
+        mention_text += " on GitHub";
+    }
+
+    author_link = $("<a />")
+            .attr("href", item.author.url)
+            .attr("target", "_new")
+            .addClass("ew-author-link text-decoration-none")
+            .text(item.author.name);
+    item_link = $("<a />")
+            .addClass("ew-webmention-link text-decoration-none")
+            .attr("href", item.url)
+            .attr("target", "_new")
+            .text(mention_text);
+    card_body.append($("<div />")
+        .addClass("col-9 col-md-11 pb-2")
+        .append(author_link)
+        .append($("<div />").text(item.content.text))
+        .append($("<div />")
+            .append(item_link)));
+
+    $(target)
+        .append($("<div />")
+            .addClass("card mb-3")
+            .append($("<a />").attr("id", "ew-webmention-" + index))
+            .append(card_body));
+}
+
+function ew_load_mentions() {
+    $.ajaxSetup({async: false});
+    $.get("https://webmention.io/api/mentions.jf2?target=" +
+        EW_TARGET + "&wm-property=mention-of", {}, function(response) {
+        if ( 0 != response.children.length ) {
+            $.each(response.children, function(index, item) {
+                ew_append_mention_element(index, item, $(EW_WRAP_ID));
+            });
+        }
+    });
+}
+
 function ew_append_reply_element(index, item, target) {
     card_body = $("<div />")
         .attr("id", "ew-webmention-" + index)
@@ -45,6 +103,7 @@ function ew_append_reply_element(index, item, target) {
 }
 
 function ew_load_replies() {
+    $.ajaxSetup({async: false});
     $.get("https://webmention.io/api/mentions.jf2?target=" +
         EW_TARGET + "&wm-property=in-reply-to", {}, function(response) {
         if ( 0 != response.children.length ) {
@@ -107,35 +166,34 @@ function ew_prep_webmentions_count(count) {
     }
 }
 
-function ew_show_counts(response) {
-    $(EW_WRAP_ID).append(ew_prep_webmentions_count(response.count));
-    new bootstrap.Tooltip($("#ew-add-webmention")).enable();
-    new bootstrap.Tooltip($("#ew-read-more")).enable();
-    if ( 0 < response.count ) {
-        plural_labels = {
-            "like": "likes",
-            "mention": "mentions",
-            "reply": "replies",
-            "bookmark": "bookmarks",
-            "repost": "re-posts"
-        };
-        $.each(response.type, function(label, value) {
-            item_header = $("<h6 />").addClass("mb-3");
-            if ( value > 1 && plural_labels[label] != undefined) {
-                item_header.text(value + " " + plural_labels[label]);
-            } else {
-                item_header.text(value + " " + label);
-            }
-            $(EW_WRAP_ID).append(item_header);
-        });
-    }
-}
-
 function ew_init() {
     $.get("https://webmention.io/api/count?target=" + EW_TARGET, {}, function(response, status) {
-        ew_show_counts(response);
-        if ( response.type.reply > 0 ) {
-            ew_load_replies();
+        $(EW_WRAP_ID).append(ew_prep_webmentions_count(response.count));
+        new bootstrap.Tooltip($("#ew-add-webmention")).enable();
+        new bootstrap.Tooltip($("#ew-read-more")).enable();
+        if ( 0 < response.count ) {
+            plural_labels = {
+                "like": "likes",
+                "mention": "mentions",
+                "reply": "replies",
+                "bookmark": "bookmarks",
+                "repost": "re-posts"
+            };
+            $.each(response.type, function(label, value) {
+                item_header = $("<h6 />").addClass("mb-3");
+                if ( value > 1 && plural_labels[label] != undefined) {
+                    item_header.text(value + " " + plural_labels[label]);
+                } else {
+                    item_header.text(value + " " + label);
+                }
+                $(EW_WRAP_ID).append(item_header);
+                if ( "reply" == label && response.type.reply > 0 ) {
+                    ew_load_replies();
+                }
+                if ( "mention" == label && response.type.mention > 0 ) {
+                    ew_load_mentions();
+                }
+            });
         }
     });
 }
