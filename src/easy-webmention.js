@@ -6,6 +6,11 @@ function ew_append_mention_element(index, item, target) {
 
     if ( item.author.name == "" ) {
         item.author.name = "Anonymous";
+    }
+    if ( item.author.url == "" ) {
+        item.author.url = "#"
+    }
+    if ( item.author.photo == "" ) {
         item.author.photo = "https://s3-us-west-2.amazonaws.com/ca3db/abs.twimg.com/0e6b2cd70aa5b35dec24ca4e1e63f8963f0118736d9ec3bba77e3a8c99a27bc2.png";
     }
     author_avatar = $("<img />")
