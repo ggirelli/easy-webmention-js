@@ -33,6 +33,4 @@ Then, place the following where you would like your webmentions to appear:
         });
     });
 </script>
-
 ```
-
