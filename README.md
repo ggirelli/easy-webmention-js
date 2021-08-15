@@ -6,7 +6,7 @@
 
 A simple JavaScript library to serve [Webmentions](https://www.w3.org/TR/webmention/) via [Webmention.io](https://Webmention.io)
 
-\[[**>> Live Demo <<**](https://ggirelli.info/blog/2021/08/08/webmentions#webmentions-wrap)]
+**\[ [Live Demo](https://ggirelli.info/blog/2021/08/08/webmentions#webmentions-wrap) ]**
 
 ## Requirements
 
