@@ -16,7 +16,7 @@ This script requires [jQuery](https://jquery.com/) v3.3.1+ and [Bootstrap](https
 
 Please, add the following in the `<head />` of your pages, after importing Bootstrap and jQuery:
 ```html
-<script type="text/javascript" src="https://ggirelli.github.io/easy-webmention-js/src/easy-webmention.js"></script>
+<script type="text/javascript" src="https://ggirelli.github.io/easy-webmention-js/src/easy-webmention.min.js"></script>
 ```
 
 Then, place the following where you would like your webmentions to appear:
