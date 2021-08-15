@@ -1,23 +1,25 @@
 # easy-webmention-js
 A simple JavaScript library to serve Webmentions via Webmention.io
 
-In your `<head />` include the following, after importing Bootstrap and jQuery:
-https://ggirelli.github.io/easy-webmention-js/src/easy-webmention.js
+This script requires jQuery v3.3.1+ and Bootstrap v5.0.2+. Please, add the following in the `<head />` of your pages, after importing Bootstrap and jQuery:
 ```html
 <script type="text/javascript" src="https://ggirelli.github.io/easy-webmention-js/src/easy-webmention.js"></script>
-<link rel="stylesheet" ref="ggirelli.github.io/easy-webmention-js/src/easy-webmention.css" />
 ```
 
 Then, place the following where you would like your webmentions to appear:
 
 ```html
 <!-- WEBMENTIONS -->
-<div id="webmentions-wrap"></div>
+<div id="webmentions-wrap" class="border-top pt-2"></div>
 <script type="text/javascript">
-    let EW_TAG = "{{ site.webmentions.tag }}";                // your webmention.io tag
-    let EW_TARGET = "{{ site.url }}{{ page.url }}";           // URL to current page
-    let EW_READ_MORE_URI = "{{ site.webmentions.help_page }}" // URL with page with instructions for lost users
-    let EW_WRAP_ID = "#webmentions-wrap";
-    $(function () { ew_init(); });
+    $(function () {
+        ew_init({
+                      "tag" : "{{ site.webmentions.tag }}",       // Webmention.io username
+                   "target" : "{{ site.url }}{{ page.url }}",     // This page's URL
+            "read_more_uri" : "{{ site.webmentions.help_page }}", // URL to help page (optional)
+                  "wrap_id" : "#webmentions-wrap"                 // ID of element where to add webmentions
+        });
+    });
 </script>
+
 ```
