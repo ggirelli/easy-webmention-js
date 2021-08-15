@@ -1,8 +1,7 @@
 # easy-webmention-js
 
-![](https://img.shields.io/github/license/ggirelli/easy-webmention-js.svg?style=flat)  
 ![](https://img.shields.io/github/release/ggirelli/easy-webmention-js.svg?style=flat) ![](https://img.shields.io/github/release-date/ggirelli/easy-webmention-js.svg?style=flat) ![](https://img.shields.io/github/languages/code-size/ggirelli/easy-webmention-js.svg?style=flat)  
-![](https://img.shields.io/github/watchers/ggirelli/easy-webmention-js.svg?label=Watch&style=social) ![](https://img.shields.io/github/stars/ggirelli/easy-webmention-js.svg?style=social)
+![](https://img.shields.io/github/license/ggirelli/easy-webmention-js.svg?style=flat) ![](https://img.shields.io/github/watchers/ggirelli/easy-webmention-js.svg?label=Watch&style=social) ![](https://img.shields.io/github/stars/ggirelli/easy-webmention-js.svg?style=social)
 
 A simple JavaScript library to serve [Webmentions](https://www.w3.org/TR/webmention/) via [Webmention.io](https://Webmention.io)
 
