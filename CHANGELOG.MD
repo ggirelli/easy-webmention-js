@@ -10,5 +10,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.0] - 2021-08-15
 
-[Unreleased] https://github.com/ggirelli/easy-webmention-js
-[1.0.0] https://github.com/ggirelli/easy-webmention-js/releases/tag/v1.0.0
+[Unreleased]: https://github.com/ggirelli/easy-webmention-js
+[1.0.0]: https://github.com/ggirelli/easy-webmention-js/releases/tag/v1.0.0
