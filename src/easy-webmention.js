@@ -1,4 +1,4 @@
-/*! easy-webmention-js - v1.0.0 - 2021-08-15
+/*! easy-webmention-js - v1.0.1 - 2021-08-15
  * https://github.com/ggirelli/easy-webmention-js
  * Copyright (c) 2021
  * License: MIT
@@ -34,18 +34,22 @@ function ew_append_element(index, item, target) {
             .text(item.author.name);
     item_link = $("<a />")
             .addClass("ew-webmention-link")
-            .addClass("text-decoration-none fs-6 lh-1 position-absolute bottom-1 right-1")
+            .addClass("text-decoration-none fs-6 lh-1")
             .attr("href", item.url).attr("target", "_new")
             .text(item_text);
 
-    item_content = $("<div />").addClass("col-9 col-md-11 pb-2").append(author_link);
+    item_content = $("<div />")
+        .addClass("col-9 col-md-11 pb-2")
+        .append(author_link);
     if ( item.content != null ) {
         item_content.append($("<div />").text(item.content.text));
     } else {
         item_content.append($("<div />").text("Content could not be retrieved."
             ).css({"font-style":"italic"}));
     }
-    item_content.append($("<div />").append(item_link));
+    item_content.append($("<div />")
+        .addClass("position-absolute bottom-0 end-0 p-1 pe-2")
+        .append(item_link));
     card_body.append(item_content);
 
     $(target)
