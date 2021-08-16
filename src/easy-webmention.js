@@ -1,4 +1,4 @@
-/*! easy-webmention-js - v1.0.1 - 2021-08-15
+/*! easy-webmention-js - v1.0.1 - 2021-08-16
  * https://github.com/ggirelli/easy-webmention-js
  * Copyright (c) 2021
  * License: MIT
