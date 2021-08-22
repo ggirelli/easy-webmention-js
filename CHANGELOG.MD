@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## [1.0.1] - 2021-08-15
+## [1.0.1] - 2021-08-22
 ### Fixed
 - "View on..." link now correctly positioned on bottom-right corner.
 
