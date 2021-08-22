@@ -1,13 +1,28 @@
-/*! easy-webmention-js - v1.0.0 - 2021-08-15
+/*! easy-webmention-js - v1.0.1 - 2021-08-22
  * https://github.com/ggirelli/easy-webmention-js
  * Copyright (c) 2021
  * License: MIT
  * Author: Gabriele Girelli https://ggirelli.info
  */
 
-function ew_append_element(index, item, target) {
+plural_labels = {
+    "like": "likes",
+    "mention": "mentions",
+    "reply": "replies",
+    "bookmark": "bookmarks",
+    "repost": "re-posts"
+};
+
+verbal_labels = {
+    "like-of": "Liked",
+    "mention-of": "Mentioned",
+    "bookmark-of": "Bookmarked",
+    "repost-of": "Re-posted"
+};
+
+function ew_append_element(m_property, index, item, target) {
     card_body = $("<div />")
-        .attr("id", "ew-webmention-" + index)
+        .attr("id", "ew-webmention-" + m_property + "-" + index)
         .attr("title", Date(Date.parse(item.published)))
         .addClass("row card-body");
 
@@ -34,18 +49,22 @@ function ew_append_element(index, item, target) {
             .text(item.author.name);
     item_link = $("<a />")
             .addClass("ew-webmention-link")
-            .addClass("text-decoration-none fs-6 lh-1 position-absolute bottom-1 right-1")
+            .addClass("text-decoration-none fs-6 lh-1")
             .attr("href", item.url).attr("target", "_new")
             .text(item_text);
 
-    item_content = $("<div />").addClass("col-9 col-md-11 pb-2").append(author_link);
+    item_content = $("<div />")
+        .addClass("col-9 col-md-11 pb-2")
+        .append(author_link);
     if ( item.content != null ) {
         item_content.append($("<div />").text(item.content.text));
     } else {
         item_content.append($("<div />").text("Content could not be retrieved."
             ).css({"font-style":"italic"}));
     }
-    item_content.append($("<div />").append(item_link));
+    item_content.append($("<div />")
+        .addClass("position-absolute bottom-0 end-0 p-1 pe-2")
+        .append(item_link));
     card_body.append(item_content);
 
     $(target)
@@ -55,13 +74,69 @@ function ew_append_element(index, item, target) {
             .append(card_body));
 }
 
-function ew_load_property(ew_settings, m_property) {
+function ew_append_short_element(m_property, index, item, target) {
+    card_body = $("<div />")
+        .attr("id", "ew-webmention-" + m_property + "-" + index)
+        .attr("title", new Date(Date.parse(item["wm-received"])))
+        .addClass("row card-body py-1");
+
+    silos_link = $("<a />").attr("href", item.url).addClass("text-decoration-none");
+    if ( item.url.startsWith("https://twitter.com/") ) { silos_link.text("Twitter"); }
+    if ( item.url.startsWith("https://github.com/"
+        ) || item.url.startsWith("https://www.github.com/") ) {
+        silos_link.text("GitHub"); }
+
+    item_date = new Date(Date.parse(item["wm-received"])).toLocaleDateString(
+        "en-US", { year: 'numeric', month: 'short', day: 'numeric',
+                   hour: '2-digit', minute: '2-digit' });
+
+    author_avatar = $("<img />")
+        .attr("src", item.author.photo)
+        .attr("alt", item.author.name + "-avatar")
+        .addClass("ew-author-avatar");
+
+    card_body.append($("<table />").append($("<tr />")
+        .append($("<td />")
+            .css({"width":"2.5em"})
+            .append($("<div />")
+                .addClass("d-block overflow-hidden")
+                .css({"width":"2.5em", "height":"2.5em"})
+                .append(author_avatar .addClass("d-inline"))))
+        .append($("<td />")
+            .append($("<span />")
+                .addClass("ms-2")
+                .text(verbal_labels[m_property] + " by "))
+            .append($("<a />")
+                .addClass("text-decoration-none")
+                .attr("href", item.author.url)
+                .text(item.author.name))
+            .append($("<span />").text(" on "))
+            .append(silos_link))
+        .append($("<td />")
+            .append($("<small />")
+                .addClass("float-end d-table-cell")
+                .css({"line-height":"2em", "font-size":".75em"})
+                .text(item_date)))
+    ));
+
+    $(target)
+        .append($("<div />")
+            .addClass("card mb-3 bg-transparent border-0")
+            .append($("<a />").attr("id", "ew-webmention-" + index))
+            .append(card_body));
+}
+
+function ew_load_property(ew_settings, m_property, short=false) {
     $.ajaxSetup({async: false});
     $.get("https://webmention.io/api/mentions.jf2?target=" +
         ew_settings.target + "&wm-property=" + m_property, {}, function(response) {
         if ( 0 != response.children.length ) {
             $.each(response.children, function(index, item) {
-                ew_append_element(index, item, $(ew_settings.wrap_id));
+                if ( short ) {
+                    ew_append_short_element(m_property, index, item, $(ew_settings.wrap_id));
+                } else {
+                    ew_append_element(m_property, index, item, $(ew_settings.wrap_id));
+                }
             });
         }
     });
@@ -158,13 +233,6 @@ function ew_init(ew_settings) {
 
             // COUNTS AND ITEMS
             if ( 0 < response.count ) {
-                plural_labels = {
-                    "like": "likes",
-                    "mention": "mentions",
-                    "reply": "replies",
-                    "bookmark": "bookmarks",
-                    "repost": "re-posts"
-                };
                 $.each(response.type, function(label, value) {
                     item_header = $("<h6 />").addClass("mb-3");
                     if ( value > 1 && plural_labels[label] != undefined) {
@@ -179,6 +247,12 @@ function ew_init(ew_settings) {
                     }
                     if ( "mention" == label && response.type.mention > 0 ) {
                         ew_load_property(ew_settings, "mention-of");
+                    }
+                    if ( "repost" == label && response.type.repost > 0 ) {
+                        ew_load_property(ew_settings, "repost-of", true);
+                    }
+                    if ( "like" == label && response.type.like > 0 ) {
+                        ew_load_property(ew_settings, "like-of", true);
                     }
                 });
             }
